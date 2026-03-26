@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("CLIENT")
+  createdAt DateTime @default(now())
+
+  services  Service[]
+  orders    Order[]
+  messages  Message[]
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  price        Float
+  category     String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  freelancerId String
+  freelancer   User     @relation(fields: [freelancerId], references: [id])
+  orders       Order[]
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id])
+
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+}
