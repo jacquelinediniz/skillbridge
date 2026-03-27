@@ -4,6 +4,7 @@ require('dotenv').config()
 
 const authRoutes = require('./routes/auth.routes')
 const serviceRoutes = require('./routes/service.routes')
+const orderRoutes = require('./routes/order.routes')
 
 const app = express()
 
@@ -16,6 +17,7 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRoutes)
 app.use('/services', serviceRoutes)
+app.use('/orders', orderRoutes)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
