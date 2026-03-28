@@ -14,7 +14,7 @@ const Chat = () => {
 
   useEffect(() => {
     fetchMessages()
-    const newSocket = io('http://localhost:3000')
+    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000')
     setSocket(newSocket)
     newSocket.emit('joinRoom', orderId)
     newSocket.on('newMessage', (message) => {
