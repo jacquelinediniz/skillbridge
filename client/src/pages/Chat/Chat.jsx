@@ -11,16 +11,30 @@ const Chat = () => {
   const { orderId } = useParams()
   const { user } = useAuth()
   const messagesEndRef = useRef(null)
+  const socketRef = useRef(null)
 
   useEffect(() => {
     fetchMessages()
-    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000')
+
+    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000', {
+      transports: ['websocket']
+    })
+
+    socketRef.current = newSocket
     setSocket(newSocket)
-    newSocket.emit('joinRoom', orderId)
+
+    newSocket.on('connect', () => {
+      console.log('Connected to socket')
+      newSocket.emit('joinRoom', orderId)
+    })
+
     newSocket.on('newMessage', (message) => {
       setMessages(prev => [...prev, message])
     })
-    return () => newSocket.disconnect()
+
+    return () => {
+      newSocket.disconnect()
+    }
   }, [orderId])
 
   useEffect(() => {
@@ -37,13 +51,14 @@ const Chat = () => {
   }
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !socket) return
-    socket.emit('sendMessage', {
+    if (!newMessage.trim() || !socketRef.current) return
+    const content = newMessage
+    setNewMessage('')
+    socketRef.current.emit('sendMessage', {
       orderId,
       senderId: user.id,
-      content: newMessage
+      content
     })
-    setNewMessage('')
   }
 
   const handleKeyPress = (e) => {
