@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import api from '../../services/api'
 
 const Home = () => {
   const [services, setServices] = useState([])
   const [category, setCategory] = useState('')
   const [loading, setLoading] = useState(true)
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -33,7 +35,6 @@ const Home = () => {
       <div style={styles.header}>
         <h1 style={styles.title}>SkillBridge</h1>
         <p style={styles.subtitle}>Find the perfect freelancer for your project</p>
-
         <div style={styles.filters}>
           <button
             style={category === '' ? styles.filterActive : styles.filter}
@@ -82,12 +83,25 @@ const Home = () => {
       </div>
 
       <div style={styles.nav}>
-        <button style={styles.navBtn} onClick={() => navigate('/login')}>
-          Sign in
-        </button>
-        <button style={styles.navBtnPrimary} onClick={() => navigate('/register')}>
-          Get started
-        </button>
+        {user ? (
+          <>
+            <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>
+              Dashboard
+            </button>
+            <button style={styles.navBtnPrimary} onClick={() => { logout(); navigate('/') }}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <button style={styles.navBtn} onClick={() => navigate('/login')}>
+              Sign in
+            </button>
+            <button style={styles.navBtnPrimary} onClick={() => navigate('/register')}>
+              Get started
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
